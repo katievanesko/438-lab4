@@ -8,7 +8,8 @@
 
 import UIKit
 
-class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
+class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource {
+    
     
     struct APIResults:Decodable {
         let page: Int
@@ -32,90 +33,109 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     
     @IBOutlet weak var movieCV: UICollectionView!
 
+    @IBOutlet weak var img: UIImageView!
+    
     override func viewDidLoad() {
+
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        setUpCollectionView()
+       
+        DispatchQueue.global(qos: .userInitiated).async {
+            self.fetchDataForCollectionView()
+            self.cacheImages()
+            DispatchQueue.main.async {
+                self.movieCV.reloadData()
+            }
+        }
+    }
+    
+    func setUpCollectionView(){
+        let layout = UICollectionViewFlowLayout()
+        layout.itemSize = CGSize(width: 115, height: 170)
+        layout.sectionInset = UIEdgeInsets(top: 10, left: 5, bottom: 5, right: 10)
+        layout.scrollDirection = .vertical
+        movieCV.collectionViewLayout = layout
+        movieCV.alwaysBounceVertical = true
+        movieCV.bounces = true
         
-        //        setUpTableView()
-        //        DispatchQueue.global(qos: .userInitiated).async {
-        //            self.fetchDataForTableView()
-        //            self.cacheImages()
-        //            DispatchQueue.main.async {
-        //                self.tableView.reloadData()
-        //            }
-        //        }
-        print("hello0")
         movieCV.delegate = self
         movieCV.dataSource = self
-        let url = "https://api.themoviedb.org/3/discover/movie?api_key=bc86ebc978bfb13bc0c142825c1417b1&primary_release_year=2010&sort_by=vote_average.desc"
-        //        let api_key = "bc86ebc978bfb13bc0c142825c1417b1"
-        getData(from:url)
+
+        movieCV.register(MovieCollectionViewCell.nib(), forCellWithReuseIdentifier: "MovieCollectionViewCell")
     }
+    
+    func fetchDataForCollectionView(){
+        print("getting data...")
+        let url = URL(string: "https://api.themoviedb.org/3/discover/movie?api_key=bc86ebc978bfb13bc0c142825c1417b1&sort_by=popularity.desc")
+        let data = try? Data(contentsOf: url!)
+        let json:APIResults = try! JSONDecoder().decode(APIResults.self, from: data!)
 
-    private func getData(from url: String) {
-            print("getting data")
-            URLSession.shared.dataTask(with: (URL(string: url))!, completionHandler: {data, response, error in
-                
-                guard let data = data, error == nil else {
-                    print("bad things oops")
-                    return
-                }
-                
-                var results: APIResults?
-                do {
-                    results = try JSONDecoder().decode(APIResults.self, from: data)
-                }
-                catch {
-                    print("failed to convert \(error.localizedDescription)")
-                }
-                
-                guard let json = results else {
-                    return
-                }
-                print(json.results[0].overview)
-                }).resume()
+        self.theData = json.results
+    }
+    
+    func cacheImages(){
+        let base_url = "https://image.tmdb.org/t/p/w500"
+        for movie in self.theData {
+            let image_url = base_url + movie.poster_path!
+            let url = URL(string: image_url)
+            let data = try? Data(contentsOf: url!)
+            let img = UIImage(data: data!)
+            self.theImageCache.append(img!)
         }
-        
-        func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-            return theData.count
-        }
-        
-        func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-            let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
-    //        cell.textLabel!.text = theData[indexPath.row.title]
-    //        cell.imageView?.image = theImageCache[indexPath.row]
-            return cell
-        }
-        
-        func setUpTableView() {
-            tableView.dataSource = self
-            tableView.delegate = self
-            tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
-        }
-        
-        func fetchDataForTableView(){
-    //        let url = URL(string: "https://api.themoviedb.org/3/movie/550?api_key=bc86ebc978bfb13bc0c142825c1417b1") ?? <#default value#>
-    //        let data = try! Data(contentsOf: url) //dont use !
-    //        theData = try! JSONDecoder().decode([APIResults].self,from:data)
-            
-            
-        }
-        
-        func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-//            let detailedVC = DetailedViewController()
-//            detailedVC.image = theImageCache[indexPath.row]
-//            detailedVC.imageName = theData[indexPath.row].title
-//            
-//            navigationController?.pushViewController(detailedVC, animated: true)
-        }
-        
-        func cacheImages(){
-            //look to 26:00 in lecture 10 for filling out function
-    //        for item in theData {
-    //            let url = URL(string:item.imge_url)
-    //        }
-        }
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
+        return self.theData.count
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MovieCollectionViewCell", for: indexPath) as! MovieCollectionViewCell
+        cell.configure(with: theImageCache[indexPath.row], title: theData[indexPath.row].title)
 
+        return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: true)
+        print("selected item")
+    }
+    
+    
+    
+    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
+        return theData.count
+    }
+    
+    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
+        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
+//        cell.label!.text = theData[indexPath.row.title]
+//        cell.imageView?.image = theImageCache[indexPath.row]
+        return cell
+    }
+    
+    func setUpTableView() {
+//        tableView.dataSource = self
+//        tableView.delegate = self
+//        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+    }
+    
+    func fetchDataForTableView(){
+        //        let url = URL(string: "https://api.themoviedb.org/3/movie/550?api_key=bc86ebc978bfb13bc0c142825c1417b1") ?? <#default value#>
+        //        let data = try! Data(contentsOf: url) //dont use !
+        //        theData = try! JSONDecoder().decode([APIResults].self,from:data)
+        
+        
+    }
+    
+    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
+        //            let detailedVC = DetailedViewController()
+        //            detailedVC.image = theImageCache[indexPath.row]
+        //            detailedVC.imageName = theData[indexPath.row].title
+        //
+        //            navigationController?.pushViewController(detailedVC, animated: true)
+    }
+    
     
     
 }
