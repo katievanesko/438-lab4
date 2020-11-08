@@ -33,11 +33,13 @@ class DetailedViewController: UIViewController {
         imageView.image = image
         view.addSubview(imageView)
         
-        let textFrame = CGRect(x: view.frame.midX - view.frame.width/2, y: 400, width: view.frame.width, height: 30)
+        let textFrame = CGRect(x: view.frame.midX - view.frame.width/2, y: 400, width: view.frame.width, height: 60)
         let textView = UILabel(frame: textFrame)
         textView.text = movie_title
         textView.textAlignment = .center
-        textView.font = textView.font.withSize(25)
+        textView.numberOfLines = 2
+        textView.font = textView.font.withSize(20)
+        
         view.addSubview(textView)
         
         let releaseFrame = CGRect(x: view.frame.midX - view.frame.width/2, y: 450, width: view.frame.width, height: 30)
