@@ -22,14 +22,31 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         let id: Int!
         let poster_path: String?
         let title: String
-        let release_date: String
-        let vote_average: Double
-        let overview: String
+        let release_date: String?
+        let vote_average: Double?
+        let overview: String?
     }
     
     var theData : [Movie] = []
     var theImageCache : [UIImage] = []
     var searchQuery: String = ""
+    
+    var punctuation:[Character:String] = [
+           "'": "%27",
+           " ": "%20",
+           ",": "%2C",
+           ";": "%3B",
+           ":": "%3A",
+           "/": "%2F",
+           "?": "%3F",
+           "[": "%5B",
+           "]": "%5D",
+           "(": "%28",
+           ")": "%29",
+           "{": "%7B",
+           "}": "%7D",
+           "!": "%21"
+       ]
     
     @IBOutlet weak var searchBtn: UIButton!
     @IBOutlet weak var movieCV: UICollectionView!
@@ -40,11 +57,10 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         setUpCollectionView()
-       searchBtn.layer.borderColor = UIColor.systemBlue.cgColor
-       searchBtn.layer.cornerRadius = 5.0
-       searchBtn.layer.borderWidth = 1
+        searchBtn.layer.borderColor = UIColor.systemBlue.cgColor
+        searchBtn.layer.cornerRadius = 5.0
+        searchBtn.layer.borderWidth = 1
         DispatchQueue.global(qos: .userInitiated).async {
-            
             self.fetchDataForCollectionView()
             self.cacheImages()
             DispatchQueue.main.async {
@@ -99,9 +115,6 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
                self.stopSpinner()
            }
         }
-        
-        
-        //FIND WAY TO CHECK FOR ALL VALUES, AND ADJUST IF ONE NOT PRESENT
     }
     
     func cacheImages(){
@@ -142,6 +155,7 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         detailedVC.overview = theData[indexPath.row].overview
         detailedVC.release_date = theData[indexPath.row].release_date
         detailedVC.vote_average = theData[indexPath.row].vote_average
+        detailedVC.id = theData[indexPath.row].id 
         
         navigationController?.pushViewController(detailedVC, animated: true)
     }
@@ -154,6 +168,7 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         activityIndicator.startAnimating()
     }
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
+        print("searching for filtered data")
         if searchQuery == ""{
             self.fetchDataForCollectionView()
             self.cacheImages()
@@ -161,8 +176,17 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         } else {
             let base_url = "https://api.themoviedb.org/3/search/movie?api_key=bc86ebc978bfb13bc0c142825c1417b1&language=en-US&query="
             let end_url = "&page=1&include_adult=false"
-            let query_url = URL(string: base_url + searchQuery + end_url)
-            
+            var query = ""
+            for char in searchQuery {
+                if punctuation[char] != nil {
+                    query.append(punctuation[char]!)
+                }
+                else {
+                    query.append(char)
+                }
+            }
+            let query_url = URL(string: base_url + query + end_url)
+            print(query_url)
             DispatchQueue.main.async {
                 self.fetchFilteredDataForCollectionView(from: query_url!)
                 self.cacheImages()
@@ -174,6 +198,7 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         searchQuery = searchText
+        print(searchQuery)
         if searchText == ""{
             self.fetchDataForCollectionView()
             self.cacheImages()
@@ -182,8 +207,6 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
                 print("reloading data")
             }
         }
-        
-        
     }
 }
 

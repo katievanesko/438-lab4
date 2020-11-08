@@ -12,6 +12,9 @@
 		29549A9B25575BBC007F9EDA /* FavoritesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29549A9A25575BBC007F9EDA /* FavoritesViewController.swift */; };
 		29549A9E2557B47A007F9EDA /* Favorite+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29549A9C2557B479007F9EDA /* Favorite+CoreDataClass.swift */; };
 		29549A9F2557B47A007F9EDA /* Favorite+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29549A9D2557B479007F9EDA /* Favorite+CoreDataProperties.swift */; };
+		29D2841425586E39005BE09B /* SuggestionViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29D2841325586E39005BE09B /* SuggestionViewController.swift */; };
+		29D284182558A820005BE09B /* NetflixViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29D284172558A820005BE09B /* NetflixViewController.swift */; };
+		29D2841B2558B025005BE09B /* WebKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 29D2841A2558B025005BE09B /* WebKit.framework */; };
 		29D4798225566527000DADC6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29D4798125566527000DADC6 /* AppDelegate.swift */; };
 		29D4798425566527000DADC6 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29D4798325566527000DADC6 /* SceneDelegate.swift */; };
 		29D4798625566527000DADC6 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29D4798525566527000DADC6 /* ViewController.swift */; };
@@ -28,6 +31,9 @@
 		29549A9A25575BBC007F9EDA /* FavoritesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesViewController.swift; sourceTree = "<group>"; };
 		29549A9C2557B479007F9EDA /* Favorite+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Favorite+CoreDataClass.swift"; sourceTree = "<group>"; };
 		29549A9D2557B479007F9EDA /* Favorite+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Favorite+CoreDataProperties.swift"; sourceTree = "<group>"; };
+		29D2841325586E39005BE09B /* SuggestionViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SuggestionViewController.swift; sourceTree = "<group>"; };
+		29D284172558A820005BE09B /* NetflixViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; name = NetflixViewController.swift; path = ../NetflixViewController.swift; sourceTree = "<group>"; };
+		29D2841A2558B025005BE09B /* WebKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WebKit.framework; path = System/Library/Frameworks/WebKit.framework; sourceTree = SDKROOT; };
 		29D4797E25566527000DADC6 /* Lab4.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lab4.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		29D4798125566527000DADC6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		29D4798325566527000DADC6 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -45,12 +51,21 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				29D2841B2558B025005BE09B /* WebKit.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		29D284192558B025005BE09B /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				29D2841A2558B025005BE09B /* WebKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
 		29D4797525566527000DADC6 = {
 			isa = PBXGroup;
 			children = (
@@ -58,6 +73,7 @@
 				29549A9D2557B479007F9EDA /* Favorite+CoreDataProperties.swift */,
 				29D4798025566527000DADC6 /* Lab4 */,
 				29D4797F25566527000DADC6 /* Products */,
+				29D284192558B025005BE09B /* Frameworks */,
 			);
 			sourceTree = "<group>";
 		};
@@ -79,6 +95,8 @@
 				29549A962557285D007F9EDA /* MovieCollectionViewCell.swift */,
 				29549A972557285D007F9EDA /* MovieCollectionViewCell.xib */,
 				29D47998255668AC000DADC6 /* DetailedViewController.swift */,
+				29D284172558A820005BE09B /* NetflixViewController.swift */,
+				29D2841325586E39005BE09B /* SuggestionViewController.swift */,
 				29549A9A25575BBC007F9EDA /* FavoritesViewController.swift */,
 				29D4798D25566528000DADC6 /* Assets.xcassets */,
 				29D4798F25566528000DADC6 /* LaunchScreen.storyboard */,
@@ -162,8 +180,10 @@
 			files = (
 				29D4798C25566527000DADC6 /* Lab4.xcdatamodeld in Sources */,
 				29D4798625566527000DADC6 /* ViewController.swift in Sources */,
+				29D284182558A820005BE09B /* NetflixViewController.swift in Sources */,
 				29549A9B25575BBC007F9EDA /* FavoritesViewController.swift in Sources */,
 				29549A9E2557B47A007F9EDA /* Favorite+CoreDataClass.swift in Sources */,
+				29D2841425586E39005BE09B /* SuggestionViewController.swift in Sources */,
 				29D47999255668AC000DADC6 /* DetailedViewController.swift in Sources */,
 				29549A9F2557B47A007F9EDA /* Favorite+CoreDataProperties.swift in Sources */,
 				29549A982557285D007F9EDA /* MovieCollectionViewCell.swift in Sources */,

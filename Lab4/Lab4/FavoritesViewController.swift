@@ -64,7 +64,17 @@ class FavoritesViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-       print("selected cell")
+        print("selected cell")
+        let detailedVC = DetailedViewController()
+
+        detailedVC.image = UIImage(data: favorites![indexPath.row].poster_img!)!
+        detailedVC.movie_title = favorites![indexPath.row].title
+        detailedVC.overview = favorites![indexPath.row].overview
+        detailedVC.release_date = favorites![indexPath.row].release_date
+        detailedVC.vote_average = favorites![indexPath.row].score as? Double
+            
+        
+        navigationController?.pushViewController(detailedVC, animated: true)
     }
     
     func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {

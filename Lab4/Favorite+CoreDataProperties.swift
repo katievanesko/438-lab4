@@ -18,5 +18,11 @@ extension Favorite {
     }
 
     @NSManaged public var title: String?
+    @NSManaged public var release_date: String
+    @NSManaged public var score: NSNumber?
+    @NSManaged public var overview: String?
+    @NSManaged public var poster_img: Data?
+    @NSManaged public var id: NSNumber?
+    
 
 }
