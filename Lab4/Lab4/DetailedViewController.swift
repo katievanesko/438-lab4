@@ -9,12 +9,14 @@
 import UIKit
 
 class DetailedViewController: UIViewController {
+    
 
     var image: UIImage!
     var movie_title: String?
     var overview: String?
     var release_date: String?
     var vote_average: Double?
+    var favorites: [Favorite]?
     
     @IBOutlet weak var posterImg: UIImageView!
     @IBOutlet weak var titleLabel: UILabel!
@@ -22,6 +24,12 @@ class DetailedViewController: UIViewController {
     @IBOutlet weak var scoreLabel: UILabel!
     @IBOutlet weak var favortieBtn: UIButton!
     @IBOutlet weak var overviewLabel: UILabel!
+    
+    private let appDelegate = UIApplication.shared.delegate as! AppDelegate
+    private let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    
+    var btnFrame: CGRect!
+    var btn:UIButton!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -69,8 +77,8 @@ class DetailedViewController: UIViewController {
         descView.font = textView.font.withSize(10)
         view.addSubview(descView)
         
-        let btnFrame = CGRect(x: view.frame.midX-100, y: 650, width: 200, height: 40)
-        let btn = UIButton(frame: btnFrame)
+        btnFrame = CGRect(x: view.frame.midX-100, y: 650, width: 200, height: 40)
+        btn = UIButton(frame: btnFrame!)
         btn.setTitle("Add to Favorites", for: UIControl.State.normal)
         btn.setTitleColor(UIColor.systemBlue, for: UIControl.State.normal)
         btn.titleLabel?.font = UIFont(name: "System", size: 25)
@@ -78,5 +86,39 @@ class DetailedViewController: UIViewController {
         btn.layer.cornerRadius = 5.0
         btn.layer.borderWidth = 1
         view.addSubview(btn)
+        btn.addTarget(self, action: #selector(self.addedToFavs(_:)), for: .touchUpInside)
+        
+        self.btn.setTitle("Added to Favorites", for: UIControl.State.disabled)
+        self.btn.setTitleColor(UIColor.systemGray, for: UIControl.State.disabled)
+        
+        fetchFavorites()
+    }
+    
+    func fetchFavorites(){
+        do {
+            self.favorites = try context.fetch(Favorite.fetchRequest())
+            for fav in favorites! {
+                 print(fav.title)
+                if fav.title == self.movie_title {
+                    self.btn.isEnabled = false
+                    btn.layer.borderColor = UIColor.systemGray.cgColor
+                }
+            }
+        } catch let error as NSError {
+            print("could not fetch due to \(error), \(error.userInfo)")
+        }
+    }
+    
+    @objc func addedToFavs(_ sender: AnyObject?) {
+        print("adding \(movie_title) to favs")
+        DispatchQueue.main.async {
+            let newFavorite = Favorite(context: self.context)
+            newFavorite.title = self.movie_title
+            try! self.context.save()
+        }
+
+        self.btn.isEnabled = false
+        btn.layer.borderColor = UIColor.systemGray.cgColor
+        
     }
 }

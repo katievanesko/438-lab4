@@ -9,42 +9,78 @@
 import UIKit
 
 class FavoritesViewController: UIViewController, UITableViewDataSource, UITableViewDelegate {
-
+    
+    struct Movie: Decodable {
+        let id: Int!
+        let poster_path: String?
+        let title: String
+        let release_date: String
+        let vote_average: Double
+        let overview: String
+    }
+    
+    private let appDelegate = UIApplication.shared.delegate as! AppDelegate
+    private let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+    
+    @IBOutlet weak var tableView: UITableView!
+    var favorites: [Favorite]?
+    
     override func viewDidLoad() {
+        print("loading favorites...")
         super.viewDidLoad()
-
-        // Do any additional setup after loading the view.
+        setUpTableView()
+    }
+    
+    func setUpTableView() {
+        tableView.dataSource = self
+        tableView.delegate = self
+        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        print("fav view did appear")
+        self.fetchFavorites()
+    }
+    
+    func fetchFavorites(){
+        do {
+            self.favorites = try context.fetch(Favorite.fetchRequest())
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
+        } catch let error as NSError {
+            print("could not fetch due to \(error), \(error.userInfo)")
+        }
     }
     
     func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return 0
+        return favorites?.count ?? 0
     }
     
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
-        //        cell.label!.text = theData[indexPath.row.title]
-        //        cell.imageView?.image = theImageCache[indexPath.row]
+        cell.textLabel?.text = favorites?[indexPath.row].title
         return cell
     }
     
-    func setUpTableView() {
-        //        tableView.dataSource = self
-        //        tableView.delegate = self
-        //        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
-    }
-    
-    func fetchDataForTableView(){
-        //        let url = URL(string: "https://api.themoviedb.org/3/movie/550?api_key=bc86ebc978bfb13bc0c142825c1417b1") ?? <#default value#>
-        //        let data = try! Data(contentsOf: url) //dont use !
-        //        theData = try! JSONDecoder().decode([APIResults].self,from:data)
-        
-        
-    }
-    
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-       
+       print("selected cell")
     }
     
-
+    func tableView(_ tableView: UITableView, trailingSwipeActionsConfigurationForRowAt indexPath: IndexPath) -> UISwipeActionsConfiguration? {
+        let action = UIContextualAction(style: .destructive, title: "Delete") { (action, view, completionHandler) in
+            let favToRemove = self.favorites![indexPath.row]
+            self.context.delete(favToRemove)
+            do {
+                try self.context.save()
+            }
+            catch {
+                print("was unable to save deletion")
+            }
+            
+            self.fetchFavorites()
+            }
+        return UISwipeActionsConfiguration(actions: [action])
+    }
 
 }

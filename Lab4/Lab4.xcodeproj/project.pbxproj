@@ -10,6 +10,8 @@
 		29549A982557285D007F9EDA /* MovieCollectionViewCell.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29549A962557285D007F9EDA /* MovieCollectionViewCell.swift */; };
 		29549A992557285D007F9EDA /* MovieCollectionViewCell.xib in Resources */ = {isa = PBXBuildFile; fileRef = 29549A972557285D007F9EDA /* MovieCollectionViewCell.xib */; };
 		29549A9B25575BBC007F9EDA /* FavoritesViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29549A9A25575BBC007F9EDA /* FavoritesViewController.swift */; };
+		29549A9E2557B47A007F9EDA /* Favorite+CoreDataClass.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29549A9C2557B479007F9EDA /* Favorite+CoreDataClass.swift */; };
+		29549A9F2557B47A007F9EDA /* Favorite+CoreDataProperties.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29549A9D2557B479007F9EDA /* Favorite+CoreDataProperties.swift */; };
 		29D4798225566527000DADC6 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29D4798125566527000DADC6 /* AppDelegate.swift */; };
 		29D4798425566527000DADC6 /* SceneDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29D4798325566527000DADC6 /* SceneDelegate.swift */; };
 		29D4798625566527000DADC6 /* ViewController.swift in Sources */ = {isa = PBXBuildFile; fileRef = 29D4798525566527000DADC6 /* ViewController.swift */; };
@@ -24,6 +26,8 @@
 		29549A962557285D007F9EDA /* MovieCollectionViewCell.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = MovieCollectionViewCell.swift; sourceTree = "<group>"; };
 		29549A972557285D007F9EDA /* MovieCollectionViewCell.xib */ = {isa = PBXFileReference; lastKnownFileType = file.xib; path = MovieCollectionViewCell.xib; sourceTree = "<group>"; };
 		29549A9A25575BBC007F9EDA /* FavoritesViewController.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FavoritesViewController.swift; sourceTree = "<group>"; };
+		29549A9C2557B479007F9EDA /* Favorite+CoreDataClass.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Favorite+CoreDataClass.swift"; sourceTree = "<group>"; };
+		29549A9D2557B479007F9EDA /* Favorite+CoreDataProperties.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = "Favorite+CoreDataProperties.swift"; sourceTree = "<group>"; };
 		29D4797E25566527000DADC6 /* Lab4.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Lab4.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		29D4798125566527000DADC6 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
 		29D4798325566527000DADC6 /* SceneDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SceneDelegate.swift; sourceTree = "<group>"; };
@@ -50,6 +54,8 @@
 		29D4797525566527000DADC6 = {
 			isa = PBXGroup;
 			children = (
+				29549A9C2557B479007F9EDA /* Favorite+CoreDataClass.swift */,
+				29549A9D2557B479007F9EDA /* Favorite+CoreDataProperties.swift */,
 				29D4798025566527000DADC6 /* Lab4 */,
 				29D4797F25566527000DADC6 /* Products */,
 			);
@@ -157,7 +163,9 @@
 				29D4798C25566527000DADC6 /* Lab4.xcdatamodeld in Sources */,
 				29D4798625566527000DADC6 /* ViewController.swift in Sources */,
 				29549A9B25575BBC007F9EDA /* FavoritesViewController.swift in Sources */,
+				29549A9E2557B47A007F9EDA /* Favorite+CoreDataClass.swift in Sources */,
 				29D47999255668AC000DADC6 /* DetailedViewController.swift in Sources */,
+				29549A9F2557B47A007F9EDA /* Favorite+CoreDataProperties.swift in Sources */,
 				29549A982557285D007F9EDA /* MovieCollectionViewCell.swift in Sources */,
 				29D4798225566527000DADC6 /* AppDelegate.swift in Sources */,
 				29D4798425566527000DADC6 /* SceneDelegate.swift in Sources */,

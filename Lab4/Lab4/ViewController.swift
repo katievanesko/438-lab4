@@ -91,9 +91,9 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
             self.activityIndicator.style = .whiteLarge
         }
         print("getting filtered data...")
-                   let data = try? Data(contentsOf: url)
-                   let json:APIResults = try! JSONDecoder().decode(APIResults.self, from: data!)
-                   self.theData = json.results
+        let data = try? Data(contentsOf: url)
+        let json:APIResults = try! JSONDecoder().decode(APIResults.self, from: data!)
+        self.theData = json.results
         DispatchQueue.main.asyncAfter(deadline: .now()+2.0) {
            DispatchQueue.main.async {
                self.stopSpinner()
