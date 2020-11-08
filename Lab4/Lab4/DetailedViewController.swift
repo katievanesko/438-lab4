@@ -67,7 +67,6 @@ class DetailedViewController: UIViewController {
         descView.font = textView.font.withSize(10)
         view.addSubview(descView)
         
-        
         let btnFrame = CGRect(x: view.frame.midX-100, y: 650, width: 200, height: 40)
         let btn = UIButton(frame: btnFrame)
         btn.setTitle("Add to Favorites", for: UIControl.State.normal)
@@ -78,5 +77,4 @@ class DetailedViewController: UIViewController {
         btn.layer.borderWidth = 1
         view.addSubview(btn)
     }
-
 }

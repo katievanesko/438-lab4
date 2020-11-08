@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
+class ViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UISearchBarDelegate {
     
     
     struct APIResults:Decodable {
@@ -25,29 +25,29 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         let release_date: String
         let vote_average: Double
         let overview: String
-        let vote_count:Int!
     }
     
     var theData : [Movie] = []
     var theImageCache : [UIImage] = []
+    var filteredData:[Movie]!
     
     @IBOutlet weak var movieCV: UICollectionView!
-
-    @IBOutlet weak var img: UIImageView!
+    @IBOutlet weak var searchBar: UISearchBar!
     
     override func viewDidLoad() {
-
         super.viewDidLoad()
         // Do any additional setup after loading the view.
         setUpCollectionView()
        
         DispatchQueue.global(qos: .userInitiated).async {
+            
             self.fetchDataForCollectionView()
             self.cacheImages()
             DispatchQueue.main.async {
                 self.movieCV.reloadData()
             }
         }
+        searchBar.delegate = self
     }
     
     func setUpCollectionView(){
@@ -74,15 +74,34 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         self.theData = json.results
     }
     
+    func fetchFilteredDataForCollectionView(from url:URL) {
+        print("getting filtered data...")
+        let data = try? Data(contentsOf: url)
+        let json:APIResults = try! JSONDecoder().decode(APIResults.self, from: data!)
+
+        self.theData = json.results
+    }
+    
     func cacheImages(){
+        theImageCache = []
         let base_url = "https://image.tmdb.org/t/p/w500"
         for movie in self.theData {
-            let image_url = base_url + movie.poster_path!
-            let url = URL(string: image_url)
-            let data = try? Data(contentsOf: url!)
-            let img = UIImage(data: data!)
-            self.theImageCache.append(img!)
+            
+            if let poster_img = movie.poster_path {
+                let image_url = base_url + poster_img
+                let url = URL(string: image_url)
+                let data = try? Data(contentsOf: url!)
+                let img = UIImage(data: data!)
+                self.theImageCache.append(img!)
+            }
+            else{
+                let ciImage = CIImage.empty()
+                let uiImage = UIImage(ciImage: ciImage)
+                self.theImageCache.append(uiImage)
+            }
         }
+        print("images cached")
+        
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
@@ -90,6 +109,7 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     }
     
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
+        print("cell for item at")
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MovieCollectionViewCell", for: indexPath) as! MovieCollectionViewCell
         cell.configure(with: theImageCache[indexPath.row], title: theData[indexPath.row].title)
 
@@ -98,7 +118,6 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
-        print("selected item")
         let detailedVC = DetailedViewController()
         detailedVC.image = theImageCache[indexPath.row]
         detailedVC.movie_title = theData[indexPath.row].title
@@ -108,7 +127,26 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         
         navigationController?.pushViewController(detailedVC, animated: true)
     }
-
     
+    
+    func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
+        if searchText == ""{
+            self.fetchDataForCollectionView()
+            self.cacheImages()
+        }
+        else {
+            let base_url = "https://api.themoviedb.org/3/search/movie?api_key=bc86ebc978bfb13bc0c142825c1417b1&language=en-US&query="
+            let end_url = "&page=1&include_adult=false"
+            let query_url = URL(string: base_url + searchText + end_url)
+            print(query_url)
+            self.fetchFilteredDataForCollectionView(from: query_url!)
+            self.cacheImages()
+        }
+        DispatchQueue.main.async {
+            self.movieCV.reloadData()
+            print("reloading data")
+        }
+        
+    }
 }
 
