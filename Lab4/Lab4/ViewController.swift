@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ViewController: UIViewController, UITableViewDataSource, UITableViewDelegate, UICollectionViewDelegate, UICollectionViewDataSource {
+class ViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource {
     
     
     struct APIResults:Decodable {
@@ -99,44 +99,16 @@ class ViewController: UIViewController, UITableViewDataSource, UITableViewDelega
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
         print("selected item")
-    }
-    
-    
-    
-    func tableView(_ tableView: UITableView, numberOfRowsInSection section: Int) -> Int {
-        return theData.count
-    }
-    
-    func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
-        let cell = UITableViewCell(style: .subtitle, reuseIdentifier: "cell")
-//        cell.label!.text = theData[indexPath.row.title]
-//        cell.imageView?.image = theImageCache[indexPath.row]
-        return cell
-    }
-    
-    func setUpTableView() {
-//        tableView.dataSource = self
-//        tableView.delegate = self
-//        tableView.register(UITableViewCell.self, forCellReuseIdentifier: "cell")
-    }
-    
-    func fetchDataForTableView(){
-        //        let url = URL(string: "https://api.themoviedb.org/3/movie/550?api_key=bc86ebc978bfb13bc0c142825c1417b1") ?? <#default value#>
-        //        let data = try! Data(contentsOf: url) //dont use !
-        //        theData = try! JSONDecoder().decode([APIResults].self,from:data)
+        let detailedVC = DetailedViewController()
+        detailedVC.image = theImageCache[indexPath.row]
+        detailedVC.movie_title = theData[indexPath.row].title
+        detailedVC.overview = theData[indexPath.row].overview
+        detailedVC.release_date = theData[indexPath.row].release_date
+        detailedVC.vote_average = theData[indexPath.row].vote_average
         
-        
+        navigationController?.pushViewController(detailedVC, animated: true)
     }
-    
-    func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        //            let detailedVC = DetailedViewController()
-        //            detailedVC.image = theImageCache[indexPath.row]
-        //            detailedVC.imageName = theData[indexPath.row].title
-        //
-        //            navigationController?.pushViewController(detailedVC, animated: true)
-    }
-    
-    
+
     
 }
 
