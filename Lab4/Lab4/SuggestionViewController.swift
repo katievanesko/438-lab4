@@ -82,13 +82,22 @@ class SuggestionViewController: UIViewController,  UICollectionViewDelegate, UIC
         print("getting data...")
         let base_url = "https://api.themoviedb.org/3/movie/"
         let end_url = "/similar?api_key=bc86ebc978bfb13bc0c142825c1417b1&language=en-US&page=1"
+        print(suggested_id)
         let movie_num = suggested_id! as NSNumber
         let movie_id =  movie_num.stringValue
         let url = URL(string: base_url + movie_id + end_url)
-        let data = try? Data(contentsOf: url!)
-        let json:APIResults = try! JSONDecoder().decode(APIResults.self, from: data!)
-        self.theData = json.results
-        print(url)
+        print(movie_id)
+        do {
+            let data = try Data(contentsOf: url!)
+            let json:APIResults = try JSONDecoder().decode(APIResults.self, from: data)
+            self.theData = json.results
+        }
+        catch {
+            print("error collecting data for collection view")
+            self.theData = []
+        }
+        
+        
     }
     
     func cacheImages(){

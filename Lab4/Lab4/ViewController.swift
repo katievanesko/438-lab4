@@ -72,7 +72,6 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         activityIndicator.startAnimating()
         activityIndicator.layer.zPosition = 1
         activityIndicator.hidesWhenStopped = true
-        
     }
     
     func stopSpinner(){
@@ -155,7 +154,9 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         detailedVC.overview = theData[indexPath.row].overview
         detailedVC.release_date = theData[indexPath.row].release_date
         detailedVC.vote_average = theData[indexPath.row].vote_average
-        detailedVC.id = theData[indexPath.row].id 
+        print("in vc setting detailed vc id:")
+        print(theData[indexPath.row].id )
+        detailedVC.movie_id = theData[indexPath.row].id
         
         navigationController?.pushViewController(detailedVC, animated: true)
     }
@@ -186,7 +187,6 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
                 }
             }
             let query_url = URL(string: base_url + query + end_url)
-            print(query_url)
             DispatchQueue.main.async {
                 self.fetchFilteredDataForCollectionView(from: query_url!)
                 self.cacheImages()
@@ -198,7 +198,6 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         searchQuery = searchText
-        print(searchQuery)
         if searchText == ""{
             self.fetchDataForCollectionView()
             self.cacheImages()

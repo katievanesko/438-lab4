@@ -72,6 +72,10 @@ class FavoritesViewController: UIViewController, UITableViewDataSource, UITableV
         detailedVC.overview = favorites![indexPath.row].overview
         detailedVC.release_date = favorites![indexPath.row].release_date
         detailedVC.vote_average = favorites![indexPath.row].score as? Double
+        print("in favs setting id for favs to detail view")
+        print(favorites![indexPath.row].movie_id)
+        print(favorites![indexPath.row].movie_id as? Int )
+        detailedVC.movie_id = favorites![indexPath.row].movie_id as? Int
             
         
         navigationController?.pushViewController(detailedVC, animated: true)
