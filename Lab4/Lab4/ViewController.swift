@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Network
 
 class ViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UISearchBarDelegate {
     
@@ -29,6 +30,7 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     
     var theData : [Movie] = []
     var theImageCache : [UIImage] = []
+    var theImageCacheHR : [UIImage] = []
     var searchQuery: String = ""
     
     var punctuation:[Character:String] = [
@@ -52,6 +54,14 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     @IBOutlet weak var movieCV: UICollectionView!
     @IBOutlet weak var searchBar: UISearchBar!
     @IBOutlet weak var activityIndicator: UIActivityIndicatorView!
+    @IBOutlet weak var movieDataLabel: UILabel!
+    @IBOutlet weak var TMDbLogo: UIImageView!
+    @IBOutlet weak var refreshBtn: UIButton!
+    
+    var isConnectedToInternet: Bool =  false
+    let nwPathMonitor = NWPathMonitor()
+    let queue = DispatchQueue.global(qos: .background)
+    
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -60,18 +70,40 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         searchBtn.layer.borderColor = UIColor.systemBlue.cgColor
         searchBtn.layer.cornerRadius = 5.0
         searchBtn.layer.borderWidth = 1
-        DispatchQueue.global(qos: .userInitiated).async {
-            self.fetchDataForCollectionView()
-            self.cacheImages()
-            DispatchQueue.main.async {
-                self.movieCV.reloadData()
-                self.stopSpinner()
-            }
-        }
-        searchBar.delegate = self
         activityIndicator.startAnimating()
         activityIndicator.layer.zPosition = 1
         activityIndicator.hidesWhenStopped = true
+        searchBar.delegate = self
+        TMDbLogo.image = UIImage(named: "TMDb")
+        self.movieDataLabel.text = ""
+        self.movieDataLabel.layer.zPosition = 1
+        refreshBtn.isHidden = true
+        nwPathMonitor.start(queue: queue)
+        
+        DispatchQueue.global(qos: .userInitiated).async {
+            let status = self.nwPathMonitor.currentPath.status
+            print(status)
+            if status == .satisfied {
+                print("Connected!!!!")
+                self.isConnectedToInternet = true
+                self.fetchDataForCollectionView()
+                self.cacheImages()
+            }
+            else {
+                print("not connected.... :(")
+                self.isConnectedToInternet = false
+            }
+           DispatchQueue.main.async {
+                self.movieCV.reloadData()
+                self.stopSpinner()
+                if self.isConnectedToInternet == false {
+                    self.TMDbLogo.image = UIImage(named: "blank")
+                    self.movieDataLabel.text = "Connect to internet to load movie data"
+                    self.refreshBtn.isHidden = false
+                }
+                self.nwPathMonitor.cancel()
+           }
+       }
     }
     
     func stopSpinner(){
@@ -79,20 +111,61 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         self.activityIndicator.stopAnimating()
     }
     
+    @IBAction func refreshForInternet(_ sender: Any) {
+        
+        let monitor = NWPathMonitor()
+        let q = DispatchQueue.global(qos: .userInitiated)
+        monitor.start(queue: q)
+        
+             let status = self.nwPathMonitor.currentPath.status
+             print(status)
+            monitor.pathUpdateHandler = { path in
+                print("update handler...")
+                
+                if path.status == .satisfied {
+                    DispatchQueue.main.async {
+                        self.activityIndicator.startAnimating()
+                    }
+                    print("Connected!!!! for refresh")
+                    self.isConnectedToInternet = true
+                    self.fetchDataForCollectionView()
+                    self.cacheImages()
+                    DispatchQueue.main.sync {
+                        print(self.theData)
+                        self.movieCV.reloadData()
+                    }
+                } else {
+                     print("not connected.... :(")
+                     self.isConnectedToInternet = false
+                }
+                
+            }
+            DispatchQueue.main.async {
+                self.stopSpinner()
+                if self.isConnectedToInternet == true {
+                    self.TMDbLogo.image = UIImage(named: "TMDb")
+                    self.movieDataLabel.text = "   "
+                    self.refreshBtn.isHidden = true
+                }
+                
+                monitor.cancel()
+            }
+//        }
+        
+    }
+
     func setUpCollectionView(){
         let layout = UICollectionViewFlowLayout()
         layout.itemSize = CGSize(width: 115, height: 170)
         layout.sectionInset = UIEdgeInsets(top: 10, left: 5, bottom: 5, right: 10)
         movieCV.collectionViewLayout = layout
-
         movieCV.delegate = self
         movieCV.dataSource = self
-
         movieCV.register(MovieCollectionViewCell.nib(), forCellWithReuseIdentifier: "MovieCollectionViewCell")
     }
     
     func fetchDataForCollectionView(){
-        print("getting data...")
+        print("fetching data...")
         let url = URL(string: "https://api.themoviedb.org/3/discover/movie?api_key=bc86ebc978bfb13bc0c142825c1417b1&sort_by=popularity.desc")
         let data = try? Data(contentsOf: url!)
         let json:APIResults = try! JSONDecoder().decode(APIResults.self, from: data!)
@@ -100,12 +173,12 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     }
     
     func fetchFilteredDataForCollectionView(from url:URL) {
+        print("fetching filtered data...")
         DispatchQueue.main.async {
             self.activityIndicator.startAnimating()
             self.activityIndicator.layer.zPosition = 1
             self.activityIndicator.style = .whiteLarge
         }
-        print("getting filtered data...")
         let data = try? Data(contentsOf: url)
         let json:APIResults = try! JSONDecoder().decode(APIResults.self, from: data!)
         self.theData = json.results
@@ -117,9 +190,11 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     }
     
     func cacheImages(){
+        print("caching images...")
         theImageCache = []
+        theImageCacheHR = []
         let base_url = "https://image.tmdb.org/t/p/w500"
-
+        let hr_base_url = "https://image.tmdb.org/t/p/original"
         for movie in self.theData {
             if let poster_img = movie.poster_path {
                 let image_url = base_url + poster_img
@@ -127,10 +202,17 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
                 let data = try? Data(contentsOf: url!)
                 let img = UIImage(data: data!)
                 self.theImageCache.append(img!)
+                
+                let hr_image_url = hr_base_url + poster_img
+                let hr_url = URL(string: hr_image_url)
+                let hr_data = try? Data(contentsOf: hr_url!)
+                let hr_img = UIImage(data: hr_data!)
+                self.theImageCacheHR.append(hr_img!)
             }
             else{
                 let image = UIImage(named: "poster_not_avail")
                 self.theImageCache.append(image!)
+                self.theImageCacheHR.append(image!)
             }
         }
     }
@@ -149,7 +231,8 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         collectionView.deselectItem(at: indexPath, animated: true)
         let detailedVC = DetailedViewController()
-        detailedVC.image = theImageCache[indexPath.row]
+        detailedVC.image = theImageCacheHR[indexPath.row]
+        
         detailedVC.movie_title = theData[indexPath.row].title
         detailedVC.overview = theData[indexPath.row].overview
         detailedVC.release_date = theData[indexPath.row].release_date
@@ -167,7 +250,6 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         activityIndicator.startAnimating()
     }
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
-        print("searching for filtered data")
         if searchQuery == ""{
             self.fetchDataForCollectionView()
             self.cacheImages()

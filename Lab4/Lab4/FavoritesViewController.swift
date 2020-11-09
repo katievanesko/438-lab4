@@ -26,7 +26,6 @@ class FavoritesViewController: UIViewController, UITableViewDataSource, UITableV
     var favorites: [Favorite]?
     
     override func viewDidLoad() {
-        print("loading favorites...")
         super.viewDidLoad()
         setUpTableView()
     }
@@ -38,7 +37,6 @@ class FavoritesViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     override func viewDidAppear(_ animated: Bool) {
-        print("fav view did appear")
         self.fetchFavorites()
     }
     
@@ -64,7 +62,6 @@ class FavoritesViewController: UIViewController, UITableViewDataSource, UITableV
     }
     
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
-        print("selected cell")
         let detailedVC = DetailedViewController()
 
         detailedVC.image = UIImage(data: favorites![indexPath.row].poster_img!)!
@@ -72,9 +69,6 @@ class FavoritesViewController: UIViewController, UITableViewDataSource, UITableV
         detailedVC.overview = favorites![indexPath.row].overview
         detailedVC.release_date = favorites![indexPath.row].release_date
         detailedVC.vote_average = favorites![indexPath.row].score as? Double
-        print("in favs setting id for favs to detail view")
-        print(favorites![indexPath.row].movie_id)
-        print(favorites![indexPath.row].movie_id as? Int )
         detailedVC.movie_id = favorites![indexPath.row].movie_id as? Int
             
         

@@ -165,8 +165,6 @@ class DetailedViewController: UIViewController {
     }
     
     @objc func sendToNetflix(_ sender: AnyObject?) {
-        print("finding netflix...")
-        
         let storyBoard: UIStoryboard = UIStoryboard(name: "Main", bundle: nil)
         if let viewController:NetflixViewController = storyBoard.instantiateViewController(withIdentifier: "netflix") as? NetflixViewController {
             viewController.movie_name = self.movie_title

@@ -32,7 +32,6 @@ class SuggestionViewController: UIViewController,  UICollectionViewDelegate, UIC
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        print("in suggestion view")
         view.backgroundColor = .white
         
         
@@ -68,7 +67,6 @@ class SuggestionViewController: UIViewController,  UICollectionViewDelegate, UIC
             DispatchQueue.main.async {
                 self.suggestionCV!.reloadData()
                 if self.theData.count == 0 {
-                    print("none")
                     not_avail.text = "No similar movies available"
                 }
                 spinner.stopAnimating()
@@ -84,7 +82,6 @@ class SuggestionViewController: UIViewController,  UICollectionViewDelegate, UIC
     }
     
     func fetchDataForCollectionView(){
-        print("getting data...")
         let base_url = "https://api.themoviedb.org/3/movie/"
         let end_url = "/similar?api_key=bc86ebc978bfb13bc0c142825c1417b1&language=en-US&page=1"
         let movie_num = suggested_id! as NSNumber
@@ -118,7 +115,6 @@ class SuggestionViewController: UIViewController,  UICollectionViewDelegate, UIC
                 self.theImageCache.append(image!)
             }
         }
-        print("images cached")
     }
     
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
