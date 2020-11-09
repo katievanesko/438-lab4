@@ -154,8 +154,6 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         detailedVC.overview = theData[indexPath.row].overview
         detailedVC.release_date = theData[indexPath.row].release_date
         detailedVC.vote_average = theData[indexPath.row].vote_average
-        print("in vc setting detailed vc id:")
-        print(theData[indexPath.row].id )
         detailedVC.movie_id = theData[indexPath.row].id
         
         navigationController?.pushViewController(detailedVC, animated: true)
@@ -191,7 +189,6 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
                 self.fetchFilteredDataForCollectionView(from: query_url!)
                 self.cacheImages()
                 self.movieCV.reloadData()
-                print("reloading data")
             }
         }
     }
@@ -203,7 +200,6 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
             self.cacheImages()
             DispatchQueue.main.async {
                 self.movieCV.reloadData()
-                print("reloading data")
             }
         }
     }

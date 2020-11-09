@@ -43,9 +43,8 @@ class SuggestionViewController: UIViewController,  UICollectionViewDelegate, UIC
         suggestionCV = UICollectionView(frame: CVFrame, collectionViewLayout: layout)
         setUpCollectionView()
         view.addSubview(suggestionCV!)
-        spinner = UIActivityIndicatorView()
-        spinner?.hidesWhenStopped = true
-        suggestionCV!.addSubview(spinner!)
+        
+        
         
         let fr = CGRect(x: 0, y: 100, width: view.frame.width, height: 60)
         let not_avail = UILabel(frame: fr)
@@ -53,7 +52,13 @@ class SuggestionViewController: UIViewController,  UICollectionViewDelegate, UIC
         not_avail.font.withSize(15)
         not_avail.layer.zPosition = 1
         self.view.addSubview(not_avail)
-        self.spinner?.startAnimating()
+        
+        let spinner = UIActivityIndicatorView(style: .large)
+        spinner.center = self.view.center
+        self.view.addSubview(spinner)
+        spinner.startAnimating()
+        spinner.hidesWhenStopped = true
+        
         
         DispatchQueue.global(qos: .userInitiated).async {
             
@@ -66,7 +71,7 @@ class SuggestionViewController: UIViewController,  UICollectionViewDelegate, UIC
                     print("none")
                     not_avail.text = "No similar movies available"
                 }
-//                self.spinner?.stopAnimating()
+                spinner.stopAnimating()
             }
         }
     }
@@ -82,11 +87,9 @@ class SuggestionViewController: UIViewController,  UICollectionViewDelegate, UIC
         print("getting data...")
         let base_url = "https://api.themoviedb.org/3/movie/"
         let end_url = "/similar?api_key=bc86ebc978bfb13bc0c142825c1417b1&language=en-US&page=1"
-        print(suggested_id)
         let movie_num = suggested_id! as NSNumber
         let movie_id =  movie_num.stringValue
         let url = URL(string: base_url + movie_id + end_url)
-        print(movie_id)
         do {
             let data = try Data(contentsOf: url!)
             let json:APIResults = try JSONDecoder().decode(APIResults.self, from: data)
@@ -96,8 +99,6 @@ class SuggestionViewController: UIViewController,  UICollectionViewDelegate, UIC
             print("error collecting data for collection view")
             self.theData = []
         }
-        
-        
     }
     
     func cacheImages(){
@@ -128,6 +129,19 @@ class SuggestionViewController: UIViewController,  UICollectionViewDelegate, UIC
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MovieCollectionViewCell", for: indexPath) as! MovieCollectionViewCell
         cell.configure(with: theImageCache[indexPath.row], title: theData[indexPath.row].title)
         return cell
+    }
+    
+    func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
+        collectionView.deselectItem(at: indexPath, animated: true)
+        let detailedVC = DetailedViewController()
+        detailedVC.image = theImageCache[indexPath.row]
+        detailedVC.movie_title = theData[indexPath.row].title
+        detailedVC.overview = theData[indexPath.row].overview
+        detailedVC.release_date = theData[indexPath.row].release_date
+        detailedVC.vote_average = theData[indexPath.row].vote_average
+        detailedVC.movie_id = theData[indexPath.row].id
+        
+        navigationController?.pushViewController(detailedVC, animated: true)
     }
     
     

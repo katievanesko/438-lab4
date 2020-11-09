@@ -146,9 +146,6 @@ class DetailedViewController: UIViewController {
             newFavorite.overview = self.overview ?? "Not available"
             newFavorite.score = (self.vote_average ?? 0.0) as NSNumber
             newFavorite.poster_img = self.image!.pngData()
-            print("setting id to save to favs")
-            print(self.movie_id!)
-            print(self.movie_id! as NSNumber)
             newFavorite.movie_id = self.movie_id! as NSNumber
             do {
                 try self.context.save()
@@ -164,8 +161,6 @@ class DetailedViewController: UIViewController {
     @objc func seeSimilar(_ sender: AnyObject?) {
         let suggestionVC = SuggestionViewController()
         suggestionVC.suggested_id = self.movie_id
-        print("in see similar detailed view")
-        print(self.movie_id)
         navigationController?.pushViewController(suggestionVC, animated: true)
     }
     
