@@ -83,29 +83,29 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         self.movieDataLabel.text = ""
         self.movieDataLabel.layer.zPosition = 1
         refreshBtn.isHidden = true
-        nwPathMonitor.start(queue: bkgd_queue)
+        
         
         DispatchQueue.global(qos: .userInitiated).async {
-            let status = self.nwPathMonitor.currentPath.status
-            print(status)
-            if status == .satisfied {
-                print("Connected!!!!")
-                self.isConnectedToInternet = true
-                 DispatchQueue.main.async {
-                    self.fetchDataForCollectionView()
-                    self.cacheImages()
-                    self.movieCV.reloadData()
+            self.nwPathMonitor.start(queue: self.bkgd_queue)
+            self.nwPathMonitor.pathUpdateHandler = { path in
+                if path.status == .satisfied {
+                    self.isConnectedToInternet = true
+                    DispatchQueue.main.async {
+                        self.fetchDataForCollectionView()
+                        self.cacheImages()
+                        self.movieCV.reloadData()
+                    }
+                }
+                else {
+                    DispatchQueue.main.async {
+                        self.isConnectedToInternet = false
+                        self.TMDbLogo.image = UIImage(named: "blank")
+                        self.movieDataLabel.text = "Connect to internet to load movie data"
+                        self.refreshBtn.isHidden = false
+                    }
                 }
             }
-            else {
-                print("not connected.... :(")
-                DispatchQueue.main.async {
-                    self.isConnectedToInternet = false
-                    self.TMDbLogo.image = UIImage(named: "blank")
-                    self.movieDataLabel.text = "Connect to internet to load movie data"
-                    self.refreshBtn.isHidden = false
-                }
-            }
+
            DispatchQueue.main.async {
                 self.activityIndicator.stopAnimating()
                 self.nwPathMonitor.cancel()
@@ -169,9 +169,15 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     
     func fetchFilteredDataForCollectionView(from url:URL) {
         print("fetching filtered data...")
-        let data = try? Data(contentsOf: url)
-        let json:APIResults = try! JSONDecoder().decode(APIResults.self, from: data!)
-        self.theData = json.results
+        do {
+            let data = try Data(contentsOf: url)
+            let json:APIResults = try JSONDecoder().decode(APIResults.self, from: data)
+            self.theData = json.results
+        }
+        catch {
+            print("Could not load data for filtered url")
+        }
+        
     }
     
     func cacheImages(){

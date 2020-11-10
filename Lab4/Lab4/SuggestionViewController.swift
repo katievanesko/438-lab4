@@ -94,6 +94,7 @@ class SuggestionViewController: UIViewController,  UICollectionViewDelegate, UIC
         let movie_num = suggested_id! as NSNumber
         let movie_id =  movie_num.stringValue
         let url = URL(string: base_url + movie_id + end_url)
+        print(url)
         do {
             let data = try Data(contentsOf: url!)
             let json:APIResults = try JSONDecoder().decode(APIResults.self, from: data)
