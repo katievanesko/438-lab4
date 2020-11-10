@@ -7,6 +7,7 @@
 //
 
 import UIKit
+import Network
 
 class SuggestionViewController: UIViewController,  UICollectionViewDelegate, UICollectionViewDataSource {
 
@@ -60,17 +61,28 @@ class SuggestionViewController: UIViewController,  UICollectionViewDelegate, UIC
         
         
         DispatchQueue.global(qos: .userInitiated).async {
-            
-            self.fetchDataForCollectionView()
-            self.cacheImages()
-            
-            DispatchQueue.main.async {
-                self.suggestionCV!.reloadData()
-                if self.theData.count == 0 {
-                    not_avail.text = "No similar movies available"
+            let monitor = NWPathMonitor()
+            let q = DispatchQueue.global(qos: .userInitiated)
+            monitor.start(queue: q)
+            monitor.pathUpdateHandler = { path in
+                if path.status == .satisfied {
+                    self.fetchDataForCollectionView()
+                    self.cacheImages()
+                    DispatchQueue.main.async {
+                        self.suggestionCV!.reloadData()
+                        if self.theData.count == 0 {
+                            not_avail.text = "No similar movies available"
+                        }
+                        spinner.stopAnimating()
+                    }
+                } else {
+                    DispatchQueue.main.async {
+                        not_avail.text = "Connect to internet to view similar movies"
+                        spinner.stopAnimating()
+                    }
                 }
-                spinner.stopAnimating()
             }
+
         }
     }
     
