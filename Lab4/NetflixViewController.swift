@@ -44,8 +44,6 @@ class NetflixViewController: UIViewController {
         }
         print(future_url)
         webView.load(NSURLRequest(url: NSURL(string: future_url)! as URL) as URLRequest)
-        //        webView.loadFileURL(url!, allowingReadAccessTo: url!)
-        //DONT FORCE UNWRAP URL!!
     }
 
 

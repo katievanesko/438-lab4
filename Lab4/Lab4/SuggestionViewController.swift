@@ -34,8 +34,6 @@ class SuggestionViewController: UIViewController,  UICollectionViewDelegate, UIC
     override func viewDidLoad() {
         super.viewDidLoad()
         view.backgroundColor = .white
-        
-        
         let layout = UICollectionViewFlowLayout()
         layout.itemSize = CGSize(width: (110), height: 170)
         layout.sectionInset = UIEdgeInsets(top: 10, left: 5, bottom: 5, right: 10)
@@ -43,8 +41,6 @@ class SuggestionViewController: UIViewController,  UICollectionViewDelegate, UIC
         suggestionCV = UICollectionView(frame: CVFrame, collectionViewLayout: layout)
         setUpCollectionView()
         view.addSubview(suggestionCV!)
-        
-        
         
         let fr = CGRect(x: 0, y: 100, width: view.frame.width, height: 60)
         let not_avail = UILabel(frame: fr)
@@ -58,7 +54,6 @@ class SuggestionViewController: UIViewController,  UICollectionViewDelegate, UIC
         self.view.addSubview(spinner)
         spinner.startAnimating()
         spinner.hidesWhenStopped = true
-        
         
         DispatchQueue.global(qos: .userInitiated).async {
             let monitor = NWPathMonitor()

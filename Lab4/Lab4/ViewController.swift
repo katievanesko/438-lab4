@@ -9,10 +9,13 @@
 import UIKit
 import Network
 
-class ViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UISearchBarDelegate {
+class ViewController: UIViewController, UICollectionViewDelegate, UICollectionViewDataSource, UISearchBarDelegate, UIContextMenuInteractionDelegate {
+
     
     
-    
+    private let appDelegate = UIApplication.shared.delegate as! AppDelegate
+    private let context = (UIApplication.shared.delegate as! AppDelegate).persistentContainer.viewContext
+
     struct APIResults:Decodable {
         let page: Int
         let total_results: Int
@@ -33,6 +36,7 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     var theImageCache : [UIImage] = []
     var theImageCacheHR : [UIImage] = []
     var searchQuery: String = ""
+    var favorites: [Favorite]?
     
     var punctuation:[Character:String] = [
            "'": "%27",
@@ -66,6 +70,7 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view.
+        print("viewdidload")
         setUpCollectionView()
         searchBtn.layer.borderColor = UIColor.systemBlue.cgColor
         searchBtn.layer.cornerRadius = 5.0
@@ -108,10 +113,6 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
        }
     }
     
-    func stopSpinner(){
-        self.activityIndicator.stopAnimating()
-    }
-    
     @IBAction func refreshForInternet(_ sender: Any) {
         let monitor = NWPathMonitor()
         let q = DispatchQueue.global(qos: .userInitiated)
@@ -134,7 +135,7 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
             }
         }
         DispatchQueue.main.async {
-            self.stopSpinner()
+            self.activityIndicator.startAnimating()
             if self.isConnectedToInternet == true {
                 self.TMDbLogo.image = UIImage(named: "TMDb")
                 self.movieDataLabel.text = "   "
@@ -220,7 +221,9 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
     func collectionView(_ collectionView: UICollectionView, cellForItemAt indexPath: IndexPath) -> UICollectionViewCell {
         let cell = collectionView.dequeueReusableCell(withReuseIdentifier: "MovieCollectionViewCell", for: indexPath) as! MovieCollectionViewCell
         cell.configure(with: theImageCache[indexPath.row], title: theData[indexPath.row].title)
-
+        let contextMenu = UIContextMenuInteraction(delegate:self)
+        cell.addInteraction(contextMenu)
+        cell.isUserInteractionEnabled = true
         return cell
     }
     
@@ -234,7 +237,6 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         detailedVC.release_date = theData[indexPath.row].release_date
         detailedVC.vote_average = theData[indexPath.row].vote_average
         detailedVC.movie_id = theData[indexPath.row].id
-        
         navigationController?.pushViewController(detailedVC, animated: true)
     }
     
@@ -260,22 +262,16 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
         }
     }
     
-    @IBAction func searchCall(_ sender: Any) {
-        activityIndicator.startAnimating()
-    }
     func searchBarTextDidEndEditing(_ searchBar: UISearchBar) {
         DispatchQueue.main.async {
             self.activityIndicator.startAnimating()
-            print("beginning spinner")
         }
         if self.searchQuery == ""{
             DispatchQueue.main.async {
-//                self.activityIndicator.startAnimating()
                 self.fetchDataForCollectionView()
                 self.cacheImages()
                 self.activityIndicator.stopAnimating()
-                print("ending spinner")
-                self.movieCV.reloadData() //??????
+                self.movieCV.reloadData()
             }
         } else {
             let base_url = "https://api.themoviedb.org/3/search/movie?api_key=bc86ebc978bfb13bc0c142825c1417b1&language=en-US&query="
@@ -290,31 +286,80 @@ class ViewController: UIViewController, UICollectionViewDelegate, UICollectionVi
             }
             let query_url = URL(string: base_url + query + end_url)
             DispatchQueue.main.async {
-//                self.activityIndicator.startAnimating()
                 self.fetchFilteredDataForCollectionView(from: query_url!)
                 self.cacheImages()
                 self.movieCV.reloadData()
-                print("ending spinner")
                 self.activityIndicator.stopAnimating()
             }
         }
-        
     }
     
     func searchBar(_ searchBar: UISearchBar, textDidChange searchText: String) {
         searchQuery = searchText
+    }
+    
+    func createContextMenu(for index:Int) -> UIMenu {
+        var action:UIMenuElement?
+        var inFavs:Bool = false
+        print(self.theData[index].title)
+        var potentialFav:Favorite?
         
-        if searchText == ""{
-            DispatchQueue.main.async {
-                self.activityIndicator.startAnimating()
-            }
-            DispatchQueue.main.async {
-                self.fetchDataForCollectionView()
-                self.cacheImages()
-                self.movieCV.reloadData()
-                self.activityIndicator.stopAnimating()
+        do {
+            self.favorites = try self.context.fetch(Favorite.fetchRequest())
+            for fav in self.favorites! {
+                if fav.title == self.theData[index].title {
+                    inFavs = true
+                    potentialFav = fav
+                    break
+                }
             }
         }
+        catch {
+            print("unable to fetch favorites")
+        }
+        let favoriteAction = UIAction(title: "Add to favorites", image: UIImage(named: "favorites")) { _ in
+            if inFavs == false {
+                DispatchQueue.main.async {
+                    let newFavorite = Favorite(context: self.context)
+                    
+                    newFavorite.title = self.theData[index].title
+                    newFavorite.release_date = self.theData[index].release_date ?? "Not available"
+                    newFavorite.overview = self.theData[index].overview ?? "Not available"
+                    newFavorite.score = (self.theData[index].vote_average ?? 0.0) as NSNumber
+                    newFavorite.poster_img = self.theImageCache[index].pngData()
+                    newFavorite.movie_id = self.theData[index].id! as NSNumber
+                    do {
+                        try self.context.save()
+                    }
+                    catch {
+                        print("unable to save to favorites")
+                    }
+                }
+            } else {
+                self.context.delete(potentialFav!)
+                do {
+                    try self.context.save()
+                }
+                catch {
+                    print("was unable to save deletion")
+                }
+            }
+        }
+        if inFavs == true {
+            favoriteAction.title = "Remove from favorites"
+            favoriteAction.image = UIImage(systemName: "heart.slash.fill")
+        }
+        
+        return UIMenu(title: theData[index].title, children: [favoriteAction])
+    }
+
+    func collectionView(_ collectionView: UICollectionView, contextMenuConfigurationForItemAt indexPath: IndexPath, point: CGPoint) -> UIContextMenuConfiguration? {
+        return UIContextMenuConfiguration(identifier: nil, previewProvider: nil, actionProvider: { suggestedActions in
+            return self.createContextMenu(for: indexPath.row)
+        })
+    }
+    func contextMenuInteraction(_ interaction: UIContextMenuInteraction, configurationForMenuAtLocation location: CGPoint) -> UIContextMenuConfiguration? {
+        return nil
     }
 }
 

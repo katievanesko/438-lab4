@@ -30,6 +30,17 @@ class FavoritesViewController: UIViewController, UITableViewDataSource, UITableV
         setUpTableView()
     }
     
+    func viewDidAppear(){
+        do {
+            self.favorites = try context.fetch(Favorite.fetchRequest())
+            DispatchQueue.main.async {
+                self.tableView.reloadData()
+            }
+        } catch let error as NSError {
+            print("could not fetch due to \(error), \(error.userInfo)")
+        }
+    }
+    
     func setUpTableView() {
         tableView.dataSource = self
         tableView.delegate = self
